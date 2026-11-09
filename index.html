@@ -1,0 +1,186 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BUFFER | Fashion Store</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#fff;color:#171717}
+header{background:#111;color:white;padding:18px 5%;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:27px;font-weight:900;letter-spacing:3px}
+header a{color:white;text-decoration:none;margin-left:12px}
+.hero{background:#171717;color:white;text-align:center;padding:65px 15px}
+.hero h1{font-size:42px;letter-spacing:4px}
+.hero p{margin:15px 0;color:#ddd}
+.btn{display:inline-block;background:white;color:#111;padding:12px 22px;border:0;cursor:pointer;text-decoration:none;font-weight:bold}
+.section{padding:35px 5%}
+.section h2{text-align:center;margin-bottom:25px}
+.filters{text-align:center;margin-bottom:22px}
+.filters button{padding:9px 17px;margin:4px;border:1px solid #222;background:white;cursor:pointer}
+.filters button.active{background:#111;color:white}
+.products{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.product{border:1px solid #eee;padding:10px}
+.product img{width:100%;height:210px;object-fit:cover;background:#eee}
+.product h3{font-size:15px;margin:10px 0}
+.price{font-weight:bold;margin-bottom:10px}
+.product button{width:100%;background:#111;color:white;padding:11px;border:0;cursor:pointer}
+.cart{background:#f5f5f5;padding:20px;margin-top:25px}
+.cart h2{text-align:left}
+.cart button{padding:9px 14px;background:#111;color:white;border:0;margin:5px;cursor:pointer}
+input,select{width:100%;padding:12px;margin:7px 0;border:1px solid #ccc}
+footer{background:#111;color:white;text-align:center;padding:30px 15px;margin-top:35px}
+.small{font-size:13px;color:#777}
+@media(min-width:700px){
+.products{grid-template-columns:repeat(4,1fr)}
+.product img{height:260px}
+.hero{padding:100px 15px}
+.hero h1{font-size:65px}
+}
+</style>
+</head>
+<body>
+
+<header>
+<div class="logo">BUFFER</div>
+<a href="#products">SHOP</a>
+<a href="#cart">CART 🛒 <span id="count">0</span></a>
+</header>
+
+<section class="hero">
+<h1>BUFFER</h1>
+<p>YOUR STYLE. YOUR IDENTITY.</p>
+<a class="btn" href="#products">SHOP NOW</a>
+</section>
+
+<section class="section" id="products">
+<h2>OUR COLLECTION</h2>
+<div class="filters">
+<button class="active" onclick="filterProducts('All',this)">All</button>
+<button onclick="filterProducts('Men',this)">Men</button>
+<button onclick="filterProducts('Women',this)">Women</button>
+</div>
+<div class="products" id="productList"></div>
+</section>
+
+<section class="section" id="cart">
+<div class="cart">
+<h2>YOUR SHOPPING CART</h2>
+<div id="cartItems">Your cart is empty.</div>
+<h3>Total: ৳<span id="total">0</span></h3>
+
+<h3 style="margin-top:20px">CUSTOMER DETAILS</h3>
+<input id="customer" placeholder="Your full name">
+<input id="phone" placeholder="Phone number">
+<input id="address" placeholder="Full delivery address">
+
+<select id="payment">
+<option>Cash on Delivery</option>
+<option>bKash</option>
+<option>Nagad</option>
+</select>
+
+<p class="small">For bKash/Nagad, contact the store for payment instructions. Do not enter your PIN or OTP here.</p>
+
+<button onclick="orderNow()">PLACE ORDER ON WHATSAPP</button>
+</div>
+</section>
+
+<footer>
+<h2>BUFFER</h2>
+<p>Wear Your Confidence.</p>
+<p>Payment: bKash | Nagad | Cash on Delivery</p>
+<p>© 2026 BUFFER. All Rights Reserved.</p>
+</footer>
+
+<script>
+// CHANGE THESE DETAILS BEFORE LAUNCH
+const WHATSAPP_NUMBER = "8801XXXXXXXXX";
+
+const products = [
+{id:1,name:"Premium Black T-Shirt",price:650,category:"Men",image:"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600"},
+{id:2,name:"Classic White T-Shirt",price:550,category:"Men",image:"https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=600"},
+{id:3,name:"Casual Hoodie",price:1200,category:"Men",image:"https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=600"},
+{id:4,name:"Women's Fashion Top",price:750,category:"Women",image:"https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600"},
+{id:5,name:"Women's Casual Outfit",price:1350,category:"Women",image:"https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600"},
+{id:6,name:"Stylish Shirt",price:950,category:"Men",image:"https://images.unsplash.com/photo-1598033129183-c4f50c736f10?w=600"},
+{id:7,name:"Women's Dress",price:1450,category:"Women",image:"https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=600"},
+{id:8,name:"Casual Jacket",price:1600,category:"Men",image:"https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600"}
+];
+
+let cart=[];
+
+function displayProducts(category="All"){
+const list=document.getElementById("productList");
+list.innerHTML="";
+products.filter(p=>category==="All"||p.category===category)
+.forEach(p=>{
+list.innerHTML+=`
+<div class="product">
+<img src="${p.image}" alt="${p.name}">
+<h3>${p.name}</h3>
+<p class="price">৳${p.price}</p>
+<button onclick="addToCart(${p.id})">ADD TO CART</button>
+</div>`;
+});
+}
+
+function filterProducts(category,button){
+document.querySelectorAll(".filters button").forEach(b=>b.classList.remove("active"));
+button.classList.add("active");
+displayProducts(category);
+}
+
+function addToCart(id){
+const item=cart.find(p=>p.id===id);
+if(item)item.qty++;
+else cart.push({...products.find(p=>p.id===id),qty:1});
+updateCart();
+}
+
+function updateCart(){
+let html="",total=0,count=0;
+cart.forEach(p=>{
+total+=p.price*p.qty;
+count+=p.qty;
+html+=`<p>${p.name} × ${p.qty} — ৳${p.price*p.qty}
+<button onclick="removeItem(${p.id})">Remove</button></p>`;
+});
+document.getElementById("cartItems").innerHTML=html||"Your cart is empty.";
+document.getElementById("total").textContent=total;
+document.getElementById("count").textContent=count;
+}
+
+function removeItem(id){
+cart=cart.filter(p=>p.id!==id);
+updateCart();
+}
+
+function orderNow(){
+const name=document.getElementById("customer").value.trim();
+const phone=document.getElementById("phone").value.trim();
+const address=document.getElementById("address").value.trim();
+const payment=document.getElementById("payment").value;
+
+if(!cart.length)return alert("Your cart is empty!");
+if(!name||!phone||!address)return alert("Please complete your details!");
+if(WHATSAPP_NUMBER.includes("X"))return alert("Store owner: Add your WhatsApp number in the code first.");
+
+let message="BUFFER NEW ORDER%0A";
+message+="Name: "+encodeURIComponent(name)+"%0A";
+message+="Phone: "+encodeURIComponent(phone)+"%0A";
+message+="Address: "+encodeURIComponent(address)+"%0A";
+message+="Payment: "+encodeURIComponent(payment)+"%0A";
+message+="Products:%0A";
+cart.forEach(p=>{
+message+=encodeURIComponent(p.name+" x "+p.qty+" = Tk "+p.price*p.qty)+"%0A";
+});
+message+="Total: Tk "+cart.reduce((s,p)=>s+p.price*p.qty,0);
+window.open("https://wa.me/"+WHATSAPP_NUMBER+"?text="+message,"_blank");
+}
+
+displayProducts();
+</script>
+</body>
+</html>
